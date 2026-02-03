@@ -1,10 +1,6 @@
 // Popup script for user interaction
 
-console.log('[Canvas Saver] Popup script loaded');
-
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('[Canvas Saver] Popup DOM ready');
-
   const saveBtn = document.getElementById('saveBtn');
   const statusEl = document.getElementById('status');
   const statusText = statusEl.querySelector('.status-text');
@@ -59,8 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error('タブを取得できません');
       }
 
-      console.log('[Canvas Saver] Executing capture in all frames...');
-
       // Execute in all frames, the script will check if it's the right frame
       const results = await chrome.scripting.executeScript({
         target: { tabId: tab.id, allFrames: true },
@@ -68,12 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
         world: 'MAIN'
       });
 
-      console.log('[Canvas Saver] Results from all frames:', results);
-
       // Find the successful result from the canvas iframe
       let captureResult = null;
       for (const result of results) {
-        console.log('[Canvas Saver] Frame result:', result);
         if (result.result && result.result.success && result.result.dataUrl) {
           captureResult = result.result;
           break;
@@ -112,22 +103,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // This function will be injected into all frames
   function captureInIframe() {
     const currentUrl = window.location.href;
-    console.log('[Canvas Saver] Checking frame:', currentUrl);
 
     // Only capture in scf.usercontent.goog frames
     if (!currentUrl.includes('scf.usercontent.goog')) {
-      console.log('[Canvas Saver] Skipping non-canvas frame');
       return { skip: true };
     }
-
-    console.log('[Canvas Saver] This is the canvas frame, starting capture...');
 
     // Return a promise-like structure for async operation
     return new Promise(async (resolve) => {
       try {
         // Load html2canvas if not available
         if (typeof html2canvas === 'undefined') {
-          console.log('[Canvas Saver] Loading html2canvas...');
           await new Promise((res, rej) => {
             const script = document.createElement('script');
             script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
@@ -135,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
             script.onerror = () => rej(new Error('Failed to load html2canvas'));
             document.head.appendChild(script);
           });
-          console.log('[Canvas Saver] html2canvas loaded');
         }
 
         const docElement = document.documentElement;
@@ -157,8 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
           body ? body.offsetHeight : 0
         );
 
-        console.log('[Canvas Saver] Dimensions:', fullWidth, 'x', fullHeight);
-
         const canvas = await html2canvas(docElement, {
           useCORS: true,
           allowTaint: true,
@@ -174,8 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
           imageTimeout: 15000,
           removeContainer: true
         });
-
-        console.log('[Canvas Saver] Canvas created:', canvas.width, 'x', canvas.height);
 
         const dataUrl = canvas.toDataURL('image/png');
         resolve({ success: true, dataUrl: dataUrl });

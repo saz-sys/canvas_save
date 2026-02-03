@@ -4,16 +4,11 @@
 (async function() {
   'use strict';
 
-  console.log('[Canvas Saver] Capture script injected into iframe');
-
   try {
     // Load html2canvas dynamically
     if (typeof html2canvas === 'undefined') {
-      console.log('[Canvas Saver] Loading html2canvas...');
       await loadHtml2Canvas();
     }
-
-    console.log('[Canvas Saver] html2canvas ready, starting capture...');
 
     // Get full document dimensions
     const docElement = document.documentElement;
@@ -35,8 +30,6 @@
       body ? body.offsetHeight : 0
     );
 
-    console.log('[Canvas Saver] Capture dimensions:', fullWidth, 'x', fullHeight);
-
     // Capture using html2canvas
     const canvas = await html2canvas(docElement, {
       useCORS: true,
@@ -54,10 +47,7 @@
       removeContainer: true
     });
 
-    console.log('[Canvas Saver] Capture complete, canvas size:', canvas.width, 'x', canvas.height);
-
     const dataUrl = canvas.toDataURL('image/png');
-    console.log('[Canvas Saver] DataURL length:', dataUrl.length);
 
     // Return the result
     return { success: true, dataUrl: dataUrl };
@@ -71,10 +61,7 @@
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-      script.onload = () => {
-        console.log('[Canvas Saver] html2canvas loaded from CDN');
-        resolve();
-      };
+      script.onload = () => resolve();
       script.onerror = () => reject(new Error('Failed to load html2canvas'));
       document.head.appendChild(script);
     });

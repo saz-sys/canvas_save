@@ -4,24 +4,17 @@
 (function() {
   'use strict';
 
-  console.log('[Canvas Saver] Content script loaded on parent page');
-
   // Listen for capture request from popup
   chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    console.log('[Canvas Saver] Received message:', request);
-
     if (request.action === 'getIframeUrl') {
       const iframe = findCanvasIframe();
       if (iframe && iframe.src) {
-        console.log('[Canvas Saver] Found iframe URL:', iframe.src);
         sendResponse({ iframeUrl: iframe.src });
       } else {
-        console.log('[Canvas Saver] No iframe found');
         sendResponse({ iframeUrl: null });
       }
     } else if (request.action === 'captureResult') {
       // Forward result to service worker for download
-      console.log('[Canvas Saver] Received capture result, forwarding to service worker');
       chrome.runtime.sendMessage({
         action: 'download',
         dataUrl: request.dataUrl

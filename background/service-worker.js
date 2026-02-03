@@ -1,9 +1,6 @@
 // Service worker for handling downloads
 
-console.log('[Canvas Saver] Service worker loaded');
-
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log('[Canvas Saver] Service worker received message:', request);
   if (request.action === 'download') {
     downloadImage(request.dataUrl);
     sendResponse({ status: 'downloading' });
